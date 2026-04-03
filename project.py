@@ -2,11 +2,12 @@ import sys
 import datetime
 import os
 import schedule
+from starlette import status
 
 DB_FILE = "backup_log.txt"
 
 
-def write_txt():
+def write_txt(source, dest, status):
     ...
 
 
@@ -14,9 +15,21 @@ def copy_folder_to_directory(source, dest):
     today = datetime.date.today()
     dest_dir = os.path.join(dest, str(today))
 
+    try:
+        ...
+
+        write_txt(source, dest_dir, "Success")
+        print(f"Copied '{source}' to '{dest_dir}'")
+    except Exception as error:
+        write_txt(source, dest, "Failed")
+        print(f"Backup failed: {error}")
+
 
 def perform_backup(source_dir, destination_dir):
-    print("Performing backup...")
+
+    """Run a single backup cycle."""
+
+    print(f"\n[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Performing backup...")
     copy_folder_to_directory(source_dir, destination_dir)
     print("Backup routine finished")
 
