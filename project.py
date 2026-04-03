@@ -3,6 +3,7 @@ import datetime
 import os
 import schedule
 import shutil
+import time
 
 DB_FILE = "backup_log.txt"
 
@@ -67,12 +68,24 @@ def main():
         except ValueError:
             sys.exit("Invalid input: seconds must be a whole number.")
         schedule.every(interval).seconds.do(perform_backup, source_dir, destination_dir)
+        print(f"Scheduler set: backup every {interval} second(s). Press Ctrl+C to stop.\n")
 
     elif schedule_pick == 'day':
         time_pick = input("Enter time for daily backup (HH:MM): ").strip()
         schedule.every(time_pick).day.do(perform_backup, source_dir, destination_dir)
+        print(f"Scheduler set: daily backup at {time_pick}. Press Ctrl+C to stop.\n")
+
     else:
         sys.exit("Invalid schedule type. Choose 'seconds' or 'day'.")
+
+    perform_backup(source_dir, destination_dir)
+
+    try:
+        while True:
+            schedule.run_pending()
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("\nBackup scheduler stopped.")
 
 
 if __name__ == "__main__":
