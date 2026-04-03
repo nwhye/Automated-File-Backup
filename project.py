@@ -4,6 +4,7 @@ import os
 import schedule
 import shutil
 import time
+import re
 
 DB_FILE = "backup_log.txt"
 
@@ -72,7 +73,9 @@ def main():
 
     elif schedule_pick == 'day':
         time_pick = input("Enter time for daily backup (HH:MM): ").strip()
-        schedule.every(time_pick).day.do(perform_backup, source_dir, destination_dir)
+        if not re.match(r"^\d{2}:\d{2}$", time_pick):
+            sys.exit("Invalid time format. Use HH:MM (e.g. 09:00).")
+        schedule.every().day.at(time_pick).do(perform_backup, source_dir, destination_dir)
         print(f"Scheduler set: daily backup at {time_pick}. Press Ctrl+C to stop.\n")
 
     else:
