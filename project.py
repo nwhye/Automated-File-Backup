@@ -2,24 +2,40 @@ import sys
 import datetime
 import os
 import schedule
-from starlette import status
+import shutil
 
 DB_FILE = "backup_log.txt"
 
 
-def write_txt(source, dest, status):
+def write_config():
     ...
 
 
+def write_txt(source, dest, status):
+
+    """Log a backup entry to the txt."""
+
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    with open(DB_FILE, "a") as db:
+        db.write(f"{timestamp} | SOURCE: {source} | DEST: {dest} | STATUS: {status}\n")
+
+
 def copy_folder_to_directory(source, dest):
+
+    """Copy source folder into dest/YYYY-MM-DD/."""
+
     today = datetime.date.today()
     dest_dir = os.path.join(dest, str(today))
 
     try:
-        ...
+        if os.path.exists(dest_dir):
+            shutil.rmtree(dest_dir)
+
+        shutil.copytree(source, dest_dir)
 
         write_txt(source, dest_dir, "Success")
         print(f"Copied '{source}' to '{dest_dir}'")
+
     except Exception as error:
         write_txt(source, dest, "Failed")
         print(f"Backup failed: {error}")
@@ -36,7 +52,13 @@ def perform_backup(source_dir, destination_dir):
 
 def main():
     source_dir = input("Enter directory path for backup: ").strip()
+    if not os.path.isdir(source_dir):
+        sys.exit(f"Source directory not found: {source_dir}")
+
     destination_dir = input("Enter destination directory path for backup: ").strip()
+    if not os.path.isdir(destination_dir):
+        sys.exit(f"Destination directory not found: {destination_dir}")
+
     schedule_pick = input("Choose schedule type for backup. Every (seconds/day): ").strip().lower()
     if schedule_pick == 'seconds':
         time_pick = input("Enter interval in seconds: ").strip()
