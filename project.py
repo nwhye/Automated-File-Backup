@@ -5,11 +5,11 @@ import schedule
 import shutil
 import time
 import re
+import json
 
-# TODO: switch to JSON
 # TODO: create test_project.py
 
-DB_FILE = "backup_log.txt"
+DB_FILE = "backup_log.json"
 
 
 def write_config():
@@ -47,13 +47,28 @@ def write_config():
     return source_dir, destination_dir
 
 
-def write_txt(source, dest, status):
+def write_json(source, dest, status):
 
-    """Log a backup entry to the txt."""
+    """Log a backup entry to the JSON file."""
 
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    with open(DB_FILE, "a") as db:
-        db.write(f"{timestamp} | SOURCE: {source} | DEST: {dest} | STATUS: {status}\n")
+
+    entry = {
+        "timestamp": timestamp,
+        "source": source,
+        "destination": dest,
+        "status": status
+    }
+    if os.path.isfile(DB_FILE):
+        with open(DB_FILE, "r") as db:
+            data = json.load(db)
+    else:
+        data = []
+
+    data.append(entry)
+
+    with open(DB_FILE, "w") as db:
+        json.dump(data, db, indent=4)
 
 
 def copy_folder_to_directory(source, dest):
@@ -69,11 +84,11 @@ def copy_folder_to_directory(source, dest):
 
         shutil.copytree(source, dest_dir)
 
-        write_txt(source, dest_dir, "Success")
+        write_json(source, dest_dir, "Success")
         print(f"Copied '{source}' to '{dest_dir}'")
 
     except Exception as error:
-        write_txt(source, dest, "Failed")
+        write_json(source, dest, "Failed")
         print(f"Backup failed: {error}")
 
 
