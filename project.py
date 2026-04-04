@@ -7,7 +7,6 @@ import time
 import re
 import json
 
-# TODO: create test_project.py
 
 DB_FILE = "backup_log.json"
 
