@@ -6,11 +6,45 @@ import shutil
 import time
 import re
 
+# TODO: switch to JSON
+# TODO: create test_project.py
+
 DB_FILE = "backup_log.txt"
 
 
 def write_config():
-    ...
+
+    """Log user configuration for backup."""
+
+    source_dir = input("Enter directory path for backup: ").strip()
+    if not os.path.isdir(source_dir):
+        sys.exit(f"Source directory not found: {source_dir}")
+
+    destination_dir = input("Enter destination directory path for backup: ").strip()
+    if not os.path.isdir(destination_dir):
+        sys.exit(f"Destination directory not found: {destination_dir}")
+
+    schedule_pick = input("Choose schedule type for backup. Every (seconds/day): ").strip().lower()
+    if schedule_pick == 'seconds':
+        time_pick = input("Enter interval in seconds: ").strip()
+        try:
+            interval = int(time_pick)
+        except ValueError:
+            sys.exit("Invalid input: seconds must be a whole number.")
+        schedule.every(interval).seconds.do(perform_backup, source_dir, destination_dir)
+        print(f"Scheduler set: backup every {interval} second(s). Press Ctrl+C to stop.\n")
+
+    elif schedule_pick == 'day':
+        time_pick = input("Enter time for daily backup (HH:MM): ").strip()
+        if not re.match(r"^\d{2}:\d{2}$", time_pick):
+            sys.exit("Invalid time format. Use HH:MM (e.g. 09:00).")
+        schedule.every().day.at(time_pick).do(perform_backup, source_dir, destination_dir)
+        print(f"Scheduler set: daily backup at {time_pick}. Press Ctrl+C to stop.\n")
+
+    else:
+        sys.exit("Invalid schedule type. Choose 'seconds' or 'day'.")
+
+    return source_dir, destination_dir
 
 
 def write_txt(source, dest, status):
@@ -53,34 +87,7 @@ def perform_backup(source_dir, destination_dir):
 
 
 def main():
-    source_dir = input("Enter directory path for backup: ").strip()
-    if not os.path.isdir(source_dir):
-        sys.exit(f"Source directory not found: {source_dir}")
-
-    destination_dir = input("Enter destination directory path for backup: ").strip()
-    if not os.path.isdir(destination_dir):
-        sys.exit(f"Destination directory not found: {destination_dir}")
-
-    schedule_pick = input("Choose schedule type for backup. Every (seconds/day): ").strip().lower()
-    if schedule_pick == 'seconds':
-        time_pick = input("Enter interval in seconds: ").strip()
-        try:
-            interval = int(time_pick)
-        except ValueError:
-            sys.exit("Invalid input: seconds must be a whole number.")
-        schedule.every(interval).seconds.do(perform_backup, source_dir, destination_dir)
-        print(f"Scheduler set: backup every {interval} second(s). Press Ctrl+C to stop.\n")
-
-    elif schedule_pick == 'day':
-        time_pick = input("Enter time for daily backup (HH:MM): ").strip()
-        if not re.match(r"^\d{2}:\d{2}$", time_pick):
-            sys.exit("Invalid time format. Use HH:MM (e.g. 09:00).")
-        schedule.every().day.at(time_pick).do(perform_backup, source_dir, destination_dir)
-        print(f"Scheduler set: daily backup at {time_pick}. Press Ctrl+C to stop.\n")
-
-    else:
-        sys.exit("Invalid schedule type. Choose 'seconds' or 'day'.")
-
+    source_dir, destination_dir = write_config()
     perform_backup(source_dir, destination_dir)
 
     try:
