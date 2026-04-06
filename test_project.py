@@ -28,15 +28,20 @@ def test_copy_folder_to_directory():
     # check that folder and inside files copied to the dest
     source = tmp_path / "source"
     source.mkdir()
+
+    (source / "file.txt").write_text("meow meow")
+
     dest = tmp_path / "dest"
     dest.mkdir()
 
-    monkeypatch.setattr("project.DB_FILE", str(tmp_path / "backup_log.json"))
+    db_file = tmp_path / "backup_log.json"
+    monkeypatch.setattr("project.DB_FILE", str(db_file))
 
     copy_folder_to_directory(str(source), str(dest))
 
     today = str(__import__("datetime").date.today())
     assert (dest / today).exists()
+    assert ((dest / today) / "file.txt").exists()
 
 
 def test_perform_backup(tmp_path, monkeypatch, capsys):
