@@ -26,7 +26,17 @@ def test_write_json(tmp_path, monkeypatch):
 
 def test_copy_folder_to_directory():
     # check that folder and inside files copied to the dest
-    ...
+    source = tmp_path / "source"
+    source.mkdir()
+    dest = tmp_path / "dest"
+    dest.mkdir()
+
+    monkeypatch.setattr("project.DB_FILE", str(tmp_path / "backup_log.json"))
+
+    copy_folder_to_directory(str(source), str(dest))
+
+    today = str(__import__("datetime").date.today())
+    assert (dest / today).exists()
 
 
 def test_perform_backup(tmp_path, monkeypatch, capsys):
