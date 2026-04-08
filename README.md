@@ -9,8 +9,13 @@ The motivation for this project was to create a simple, dependency-light backup 
 
 #### Files: 
 - project.py
+
   The main application file.
+  
 - test_project.py
+
   Contains pytest tests for all four functions.
+  
 - backup_log.json
+
   Automatically created on the first backup. Stores a JSON array of log entries, one per backup attempt.
